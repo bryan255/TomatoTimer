@@ -26,8 +26,13 @@ class main_window(Tk):
     def set_timer(self):
         self.timer_label['text'] = f'{int(self.hours_spbx.get()):02d}h : {int(self.mins_spbx.get()):02d}m : 00s'
 
-    def timer_spinboxes(self):
+    def switch_state(self):
+        if sum([int(self.hours_spbx.get()), int(self.mins_spbx.get())]) == 0:
+            self.ready_button.config(state=DISABLED)
+        else:
+            self.ready_button.config(state=NORMAL)
 
+    def timer_spinboxes(self):
         # canvas for headers & spinboxes
         self.spbx_canvas = Canvas(self,
                                   width=100,
@@ -57,17 +62,17 @@ class main_window(Tk):
                                     width=5,
                                     font=('Arial', 14),
                                     textvariable=self.hrs,
-                                    command=self.set_timer
+                                    command=lambda: [self.set_timer(), self.switch_state()]
                                     )
         self.mins_spbx = Spinbox(self.spbx_canvas,
                                     from_=0,
-                                    to=55,
-                                    increment=5,
+                                    to=59,
+                                    increment=1,
                                     justify=CENTER,
                                     width=5,
                                     font=('Arial', 14),
                                     textvariable=self.mins,
-                                    command=self.set_timer
+                                    command=lambda: [self.set_timer(), self.switch_state()]
                                     )
         self.hours_spbx.grid(row=1, column=0)
         self.mins_spbx.grid(row=1, column=1)
@@ -75,6 +80,7 @@ class main_window(Tk):
     def reset_timer(self):
 
         self.timer_label['text'] = '00h : 00m : 00s'
+        self.ready_button['state'] = DISABLED
         self.hrs.set(0)
         self.mins.set(0)
 
@@ -101,7 +107,9 @@ class main_window(Tk):
         # ready, reset, and close buttons
         self.ready_button  = Button(self.canvas_timer_and_buttons,
                                     text='Ready',
-                                    command=self.call_timer)
+                                    command=self.call_timer,
+                                    state=DISABLED
+                                    )
         self.reset_button = Button(self.canvas_timer_and_buttons,
                                    text='Reset',
                                    command=self.reset_timer)
@@ -118,3 +126,7 @@ class main_window(Tk):
         self.timer_spinboxes()
         self.timer_and_buttons()
         self.mainloop()
+
+if __name__ == '__main__':
+    root = main_window(r'tomato.png')
+    root.start()

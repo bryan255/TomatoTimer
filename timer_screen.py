@@ -1,5 +1,6 @@
+import datetime
+import sqlite_mod
 from tkinter import *
-
 class timer_window(Toplevel):
 
     def __init__(self, parent, hrs, mins):
@@ -11,6 +12,7 @@ class timer_window(Toplevel):
         self.columnconfigure(0, weight=1)
         self.time = [hrs, mins]
         self.timer_running = False
+        self.db = sqlite_mod.local_db()
 
     def start_timer(self):
         if not self.timer_running:
@@ -25,8 +27,10 @@ class timer_window(Toplevel):
             self.timer['text'] = f'{self.hours:02d}h : {self.mins:02d}m : {self.secs:02d}s'
             self.timer_id = self.after(1000, self.run_timer)
         else:
-            self.timer['text'] = '00h : 00d : 00m'
+            self.timer['text'] = '00h : 00m : 00s'
             self.timer_running = False
+            self.write_pd()
+            self.bell()
 
     def pause_timer(self):
         if self.timer_running:
@@ -38,6 +42,11 @@ class timer_window(Toplevel):
             self.pause_timer()
         self.create_timer_buttons()
 
+    def write_pd(self):
+        record = [datetime.date.today(), (self.time[0] * 60) + self.time[1]]
+        self.db.write_record(record)
+        print('record written')
+        self.db.close_db()
 
     def create_timer_buttons(self):
         self.cvs = Canvas(self,
